@@ -1,0 +1,16 @@
+.login-page { min-height: 100svh; display: grid; place-items: center; padding: 32px 20px; color: #f5f3ef; background: radial-gradient(circle at 85% 15%, rgba(244,81,22,.16), transparent 28%), #090909; }
+.login-card { width: min(480px, 100%); padding: clamp(28px, 6vw, 52px); border: 1px solid #292929; background: #111; box-shadow: 0 28px 80px rgba(0,0,0,.45); }
+.login-card__brand { display: inline-block; margin-bottom: 42px; }
+.login-card__brand img { width: auto; height: 52px; display: block; }
+.login-card__eyebrow, .login-card label > span { color: #f45116; font-size: .7rem; font-weight: 850; letter-spacing: .15em; }
+.login-card h1 { margin: 14px 0 18px; font-size: clamp(2.5rem, 8vw, 4.25rem); line-height: .92; letter-spacing: -.06em; text-transform: uppercase; }
+.login-card h1 em { color: #f45116; font-style: normal; }
+.login-card > p { margin: 0 0 32px; color: #999; line-height: 1.6; }
+.login-card form, .login-card label { display: grid; gap: 9px; }
+.login-card form { gap: 20px; }
+.login-card input { width: 100%; padding: 15px; border: 1px solid #383838; outline: 0; color: #fff; background: #090909; font: inherit; }
+.login-card input:focus { border-color: #f45116; }
+.login-card button { display: flex; justify-content: space-between; margin-top: 5px; padding: 17px 20px; border: 1px solid #f45116; color: #fff; background: #f45116; font-weight: 850; letter-spacing: .08em; cursor: pointer; }
+.login-card button:hover { color: #f45116; background: transparent; }
+.login-card button:disabled { cursor: wait; opacity: .65; }
+.login-card__message { margin: 0; color: #ff8d68; font-size: .88rem; }

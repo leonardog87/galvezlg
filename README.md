@@ -1,0 +1,52 @@
+# React + TypeScript + Vite
+
+## Acceso de administración
+
+La pantalla de acceso está disponible únicamente escribiendo `/login` en la URL. La carga de productos requiere una sesión administrativa tanto en la interfaz como en la API.
+
+Definí `ADMIN_USERNAME` y `ADMIN_PASSWORD` antes de iniciar la API. Para desarrollo local, los valores predeterminados son `admin` y `galvez2026`; deben reemplazarse en cualquier despliegue.
+
+## Pagos con Mercado Pago
+
+El checkout usa Mercado Pago Checkout Pro. Antes de iniciar la API, configurá estas variables de entorno:
+
+```powershell
+$env:MP_ACCESS_TOKEN="APP_USR-..."
+$env:MP_WEBHOOK_SECRET="clave-secreta-del-webhook"
+$env:PUBLIC_SITE_URL="https://www.tudominio.com"
+$env:PUBLIC_API_URL="https://api.tudominio.com"
+npm run api
+```
+
+`PUBLIC_API_URL` puede omitirse cuando el frontend y la API comparten el mismo dominio. Las URLs deben ser públicas y HTTPS para que Mercado Pago pueda retornar al sitio y enviar webhooks. `MP_WEBHOOK_SECRET` es la clave de Webhooks > Configurar notificaciones de la aplicación. Ambas credenciales pertenecen al servidor y nunca deben agregarse a variables `VITE_*` ni subirse al repositorio.
+
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the Oxlint configuration
+
+If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
+```
+
+See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
