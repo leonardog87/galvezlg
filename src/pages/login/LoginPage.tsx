@@ -31,7 +31,8 @@ export function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       })
-      const result = await response.json()
+      const responseText = await response.text()
+      const result = responseText ? JSON.parse(responseText) : {}
       if (!response.ok) throw new Error(result.error || 'No se pudo iniciar sesión')
       sessionStorage.setItem('adminToken', result.token)
       window.location.replace('/administrar-productos')
