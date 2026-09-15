@@ -4,7 +4,7 @@ import { Footer } from '../../components/footer/Footer'
 import { Header } from '../../components/header/Header'
 import './CheckoutPage.css'
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
 const money = (value: number) => value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
 
 export function CheckoutPage() {

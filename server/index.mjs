@@ -10,7 +10,7 @@ const adminPassword = process.env.ADMIN_PASSWORD || 'galvez2026'
 const sessionDuration = 5 * 60 * 1000
 const mercadoPagoAccessToken = process.env.MP_ACCESS_TOKEN || ''
 const mercadoPagoWebhookSecret = process.env.MP_WEBHOOK_SECRET || ''
-const publicSiteUrl = String(process.env.PUBLIC_SITE_URL || '').replace(/\/$/, '')
+const publicSiteUrl = String(process.env.PUBLIC_SITE_URL || 'https://galvezlg.vercel.app').replace(/\/$/, '')
 const publicApiUrl = String(process.env.PUBLIC_API_URL || publicSiteUrl).replace(/\/$/, '')
 let mercadoPagoCollectorId = ''
 const sessions = new Map()
@@ -53,14 +53,14 @@ const getToken = (request) => {
   return authorization.startsWith('Bearer ') ? authorization.slice(7) : ''
 }
 
-const isAdmin = (request) => {
+const isAdmin = async (request) => {
   const token = getToken(request)
   const session = sessions.get(token)
   if (!session || session.expiresAt < Date.now()) {
     if (token) sessions.delete(token)
     return false
   }
-  if (!session.isPrimary && !findAdminUser(session.username)?.isActive) {
+  if (!session.isPrimary && !(await findAdminUser(session.username))?.isActive) {
     sessions.delete(token)
     return false
   }
@@ -133,7 +133,7 @@ const paymentReturnUrl = (pathname, order) => {
   return url.toString()
 }
 
-const server = createServer(async (request, response) => {
+export const handleRequest = async (request, response) => {
   const requestUrl = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`)
 
   if (request.method === 'OPTIONS') {
@@ -149,38 +149,38 @@ const server = createServer(async (request, response) => {
       return
     }
     const categorySearch = search.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')
-    sendJson(response, 200, search ? searchProducts(search, categorySearch) : listProducts(category))
+    sendJson(response, 200, search ? await searchProducts(search, categorySearch) : await listProducts(category))
     return
   }
 
   if (requestUrl.pathname === '/api/products/suggestions' && request.method === 'GET') {
     const search = (requestUrl.searchParams.get('search') || '').trim().slice(0, 120)
-    sendJson(response, 200, search.length >= 2 ? searchProductSuggestions(search) : [])
+    sendJson(response, 200, search.length >= 2 ? await searchProductSuggestions(search) : [])
     return
   }
 
   const productDetailMatch = requestUrl.pathname.match(/^\/api\/products\/(\d+)$/)
   if (productDetailMatch && request.method === 'GET') {
-    const product = getProduct(Number(productDetailMatch[1]))
+    const product = await getProduct(Number(productDetailMatch[1]))
     sendJson(response, product ? 200 : 404, product || { error: 'Producto no encontrado' })
     return
   }
 
   if (request.url === '/api/admin/products' && request.method === 'GET') {
-    if (!isAdmin(request)) {
+    if (!(await isAdmin(request))) {
       sendJson(response, 401, { error: 'Se requiere una sesión de administrador' })
       return
     }
-    sendJson(response, 200, listAdminProducts())
+    sendJson(response, 200, await listAdminProducts())
     return
   }
 
   if (productDetailMatch && request.method === 'DELETE') {
-    if (!isAdmin(request)) {
+    if (!(await isAdmin(request))) {
       sendJson(response, 401, { error: 'Se requiere una sesión de administrador' })
       return
     }
-    const deactivated = deactivateProduct(Number(productDetailMatch[1]))
+    const deactivated = await deactivateProduct(Number(productDetailMatch[1]))
     sendJson(response, deactivated ? 200 : 404, deactivated
       ? { success: true }
       : { error: 'Producto no encontrado o dado de baja previamente' })
@@ -188,7 +188,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (productDetailMatch && request.method === 'PATCH') {
-    if (!isAdmin(request)) {
+    if (!(await isAdmin(request))) {
       sendJson(response, 401, { error: 'Se requiere una sesión de administrador' })
       return
     }
@@ -200,7 +200,7 @@ const server = createServer(async (request, response) => {
         sendJson(response, 400, { error: 'Ingresá un precio válido y una cantidad mayor que cero' })
         return
       }
-      const product = activateProduct(Number(productDetailMatch[1]), { price, quantity })
+      const product = await activateProduct(Number(productDetailMatch[1]), { price, quantity })
       sendJson(response, product ? 200 : 404, product || { error: 'Publicación no encontrada o ya se encuentra activa' })
     } catch (error) {
       sendJson(response, 400, { error: error instanceof Error ? error.message : 'No se pudo dar de alta la publicación' })
@@ -210,11 +210,11 @@ const server = createServer(async (request, response) => {
 
   const adminProductMatch = requestUrl.pathname.match(/^\/api\/admin\/products\/(\d+)$/)
   if (adminProductMatch && request.method === 'DELETE') {
-    if (!isAdmin(request)) {
+    if (!(await isAdmin(request))) {
       sendJson(response, 401, { error: 'Se requiere una sesión de administrador' })
       return
     }
-    const deleted = deleteProduct(Number(adminProductMatch[1]))
+    const deleted = await deleteProduct(Number(adminProductMatch[1]))
     sendJson(response, deleted ? 200 : 404, deleted
       ? { success: true }
       : { error: 'Publicación no encontrada o borrada previamente' })
@@ -225,7 +225,7 @@ const server = createServer(async (request, response) => {
     try {
       const body = await readJsonBody(request)
       const username = normalizeUsername(body.username)
-      const storedUser = findAdminUser(username)
+      const storedUser = await findAdminUser(username)
       const validEnvironmentAdmin = safeMatch(username, adminUser) && safeMatch(body.password, adminPassword)
       const validStoredAdmin = storedUser && storedUser.isActive && matchesStoredPassword(body.password, storedUser)
       if (!validEnvironmentAdmin && !validStoredAdmin) {
@@ -243,7 +243,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.url === '/api/admin/users' && request.method === 'POST') {
-    if (!isAdmin(request)) {
+    if (!(await isAdmin(request))) {
       sendJson(response, 401, { error: 'Se requiere una sesión de administrador' })
       return
     }
@@ -265,13 +265,13 @@ const server = createServer(async (request, response) => {
         sendJson(response, 400, { error: 'Las contraseñas no coinciden' })
         return
       }
-      if (safeMatch(username.toLocaleLowerCase(), adminUser.toLocaleLowerCase()) || findAdminUser(username)) {
+      if (safeMatch(username.toLocaleLowerCase(), adminUser.toLocaleLowerCase()) || await findAdminUser(username)) {
         sendJson(response, 409, { error: 'Ese nombre de usuario ya existe' })
         return
       }
 
       const passwordSalt = randomBytes(16).toString('hex')
-      const user = createAdminUser({ username, passwordHash: hashPassword(password, passwordSalt), passwordSalt })
+      const user = await createAdminUser({ username, passwordHash: hashPassword(password, passwordSalt), passwordSalt })
       sendJson(response, 201, { id: user.id, username: user.username })
     } catch (error) {
       const duplicate = error instanceof Error && error.message.includes('UNIQUE constraint failed')
@@ -285,7 +285,7 @@ const server = createServer(async (request, response) => {
       sendJson(response, 403, { error: 'Solo el administrador principal puede gestionar usuarios' })
       return
     }
-    sendJson(response, 200, listAdminUsers())
+    sendJson(response, 200, await listAdminUsers())
     return
   }
 
@@ -298,7 +298,7 @@ const server = createServer(async (request, response) => {
     try {
       const body = await readJsonBody(request)
       if (typeof body.isActive !== 'boolean') throw new Error()
-      const updated = setAdminUserActive(Number(adminUserMatch[1]), body.isActive)
+      const updated = await setAdminUserActive(Number(adminUserMatch[1]), body.isActive)
       sendJson(response, updated ? 200 : 404, updated ? { success: true } : { error: 'Usuario no encontrado' })
     } catch {
       sendJson(response, 400, { error: 'Estado de usuario inválido' })
@@ -311,13 +311,13 @@ const server = createServer(async (request, response) => {
       sendJson(response, 403, { error: 'Solo el administrador principal puede gestionar usuarios' })
       return
     }
-    const deleted = deleteAdminUser(Number(adminUserMatch[1]))
+    const deleted = await deleteAdminUser(Number(adminUserMatch[1]))
     sendJson(response, deleted ? 200 : 404, deleted ? { success: true } : { error: 'Usuario no encontrado' })
     return
   }
 
   if (request.url === '/api/auth/session' && request.method === 'GET') {
-    const authenticated = isAdmin(request)
+    const authenticated = await isAdmin(request)
     const session = sessions.get(getToken(request))
     sendJson(response, authenticated ? 200 : 401, authenticated
       ? { authenticated: true, isPrimary: Boolean(session?.isPrimary), username: session?.username }
@@ -332,7 +332,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.url === '/api/products' && request.method === 'POST') {
-    if (!isAdmin(request)) {
+    if (!(await isAdmin(request))) {
       sendJson(response, 401, { error: 'Se requiere una sesión de administrador' })
       return
     }
@@ -351,7 +351,7 @@ const server = createServer(async (request, response) => {
         return
       }
 
-      sendJson(response, 201, createProduct({ category, title, description, price, quantity, images }))
+      sendJson(response, 201, await createProduct({ category, title, description, price, quantity, images }))
     } catch (error) {
       sendJson(response, 400, {
         error: error instanceof Error ? error.message : 'No se pudo guardar el producto',
@@ -388,9 +388,9 @@ const server = createServer(async (request, response) => {
         return
       }
 
-      const items = prepareOrderItems(requestedItems)
+      const items = await prepareOrderItems(requestedItems)
       const collectorId = await getMercadoPagoCollectorId()
-      const order = createOrder({ customer, items, publicToken: randomBytes(24).toString('hex') })
+      const order = await createOrder({ customer, items, publicToken: randomBytes(24).toString('hex') })
       const preference = await mercadoPagoRequest('/checkout/preferences', {
         method: 'POST',
         headers: { 'X-Idempotency-Key': randomBytes(16).toString('hex') },
@@ -415,7 +415,7 @@ const server = createServer(async (request, response) => {
           notification_url: `${publicApiUrl}/api/mercadopago/webhook`,
         }),
       })
-      setOrderPreference(order.id, preference.id, collectorId)
+      await setOrderPreference(order.id, preference.id, collectorId)
       sendJson(response, 201, { checkoutUrl: preference.init_point, orderId: order.id, orderToken: order.publicToken })
     } catch (error) {
       sendJson(response, 400, { error: error instanceof Error ? error.message : 'No se pudo iniciar el pago' })
@@ -426,7 +426,7 @@ const server = createServer(async (request, response) => {
   const publicOrderMatch = requestUrl.pathname.match(/^\/api\/orders\/(\d+)$/)
   if (publicOrderMatch && request.method === 'GET') {
     const token = requestUrl.searchParams.get('token') || ''
-    const order = token && getPublicOrder(Number(publicOrderMatch[1]), token)
+    const order = token && await getPublicOrder(Number(publicOrderMatch[1]), token)
     sendJson(response, order ? 200 : 404, order || { error: 'Orden no encontrada' })
     return
   }
@@ -456,10 +456,10 @@ const server = createServer(async (request, response) => {
 
       const payment = await mercadoPagoRequest(`/v1/payments/${encodeURIComponent(paymentId)}`)
       const orderId = Number(payment.external_reference)
-      const order = Number.isInteger(orderId) && orderId > 0 ? getOrderForPayment(orderId) : null
+      const order = Number.isInteger(orderId) && orderId > 0 ? await getOrderForPayment(orderId) : null
       if (!order) throw new Error('El pago refiere a una orden inexistente')
       validatePaymentForOrder(payment, order)
-      applyOrderPayment(order.id, String(payment.status), String(payment.id))
+      await applyOrderPayment(order.id, String(payment.status), String(payment.id))
       sendJson(response, 200, { received: true })
     } catch (error) {
       console.error('No se pudo procesar el webhook de Mercado Pago:', error)
@@ -469,8 +469,11 @@ const server = createServer(async (request, response) => {
   }
 
   sendJson(response, 404, { error: 'Ruta no encontrada' })
-})
+}
 
-server.listen(port, () => {
-  console.log(`API disponible en http://localhost:${port}`)
-})
+if (!process.env.VERCEL) {
+  const server = createServer(handleRequest)
+  server.listen(port, () => {
+    console.log(`API disponible en http://localhost:${port}`)
+  })
+}

@@ -18,7 +18,7 @@ export function PaymentResultPage({ status: _returnStatus }: { status: keyof typ
   const [confirmedStatus, setConfirmedStatus] = useState<keyof typeof content | 'loading'>(hasOrderCredentials ? 'loading' : 'failure')
   const [paymentId, setPaymentId] = useState<string | null>(null)
   const [error, setError] = useState(hasOrderCredentials ? '' : 'No pudimos identificar la orden de forma segura.')
-  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+  const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
 
   useEffect(() => {
     if (!orderId || !orderToken) return

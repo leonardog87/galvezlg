@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import galvezLogo from '../../assets/Galvez_logo.webp'
 import './LoginPage.css'
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
 
 export function LoginPage() {
   const [username, setUsername] = useState('')

@@ -20,6 +20,27 @@ npm run api
 
 `PUBLIC_API_URL` puede omitirse cuando el frontend y la API comparten el mismo dominio. Las URLs deben ser públicas y HTTPS para que Mercado Pago pueda retornar al sitio y enviar webhooks. `MP_WEBHOOK_SECRET` es la clave de Webhooks > Configurar notificaciones de la aplicación. Ambas credenciales pertenecen al servidor y nunca deben agregarse a variables `VITE_*` ni subirse al repositorio.
 
+### Configuración de producción
+
+El sitio público de producción es `https://galvezlg.vercel.app`. Configurá las
+variables en el proveedor correspondiente (no copies `.env` al repositorio):
+
+- En Vercel, conectar una integración Postgres (por ejemplo Neon) al proyecto;
+  esta debe proporcionar `DATABASE_URL`.
+- En variables de producción de Vercel, definir
+  `PUBLIC_SITE_URL=https://galvezlg.vercel.app`,
+  `PUBLIC_API_URL=https://galvezlg.vercel.app`, `MP_ACCESS_TOKEN`,
+  `MP_WEBHOOK_SECRET`, `ADMIN_USERNAME` y `ADMIN_PASSWORD`.
+- `VITE_API_URL` debe omitirse: el frontend usa la API del mismo dominio.
+- En Mercado Pago, en **Tu integración > Webhooks > Producción**, registrar
+  `https://galvezlg.vercel.app/api/mercadopago/webhook`, seleccionar el
+  evento **Pagos** y guardar la clave generada como `MP_WEBHOOK_SECRET`.
+
+En Vercel la API usa Postgres mediante `DATABASE_URL`. Para desarrollo local,
+si esa variable no está definida, conserva automáticamente la base SQLite.
+El archivo `vercel.json` también configura el frontend para que las URLs de
+retorno `/pago/exitoso`, `/pago/pendiente` y `/pago/error` carguen correctamente.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

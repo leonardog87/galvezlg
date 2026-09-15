@@ -7,7 +7,8 @@ import type { ProductCategory } from './productCategories'
 import './ProductsPage.css'
 
 type Product = { id: number; category: string; title: string; price: number; quantity: number; description: string; images: string[] }
-const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/products`
+const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
+const apiUrl = `${apiBase}/api/products`
 
 const formatPrice = (price: number) =>
   price.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })

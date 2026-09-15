@@ -8,7 +8,7 @@ const links = [
   { label: 'Inicio', href: '/' },
   { label: 'Contacto', href: '/contacto' },
 ]
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
 type Suggestion = { label: string; kind: 'Producto' | 'Categoría' }
 const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase()
 

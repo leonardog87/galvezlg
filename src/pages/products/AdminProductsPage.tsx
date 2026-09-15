@@ -4,8 +4,8 @@ import { Header } from '../../components/header/Header'
 import { productCategories } from './productCategories'
 import './AdminProductsPage.css'
 
-const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/products`
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
+const apiUrl = `${apiBase}/api/products`
 
 type AdminProduct = {
   id: number
@@ -86,7 +86,7 @@ export function AdminProductsPage() {
       return
     }
 
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/session`, {
+    fetch(`${apiBase}/api/auth/session`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then(async (response) => {
       if (!response.ok) throw new Error('Sesión inválida')
@@ -348,7 +348,7 @@ export function AdminProductsPage() {
           <a href="/productos">← Volver al catálogo</a>
           <button className="admin-products__logout" type="button" onClick={async () => {
             const token = sessionStorage.getItem('adminToken')
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/logout`, {
+            await fetch(`${apiBase}/api/auth/logout`, {
               method: 'POST',
               headers: { Authorization: `Bearer ${token || ''}` },
             }).catch(() => undefined)
