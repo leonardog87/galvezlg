@@ -19,9 +19,10 @@ export const normalizeContact = (body = {}) => ({
 
 export const validateContact = (contact) => {
   if (contact.website) return 'spam'
-  if (!contact.name || !contact.phone || !emailPattern.test(contact.email) || contact.message.length < 10) {
-    return 'Completá correctamente tu nombre, teléfono, correo y consulta.'
-  }
+  if (!contact.name) return 'Ingresá tu nombre.'
+  if (!contact.phone) return 'Ingresá tu teléfono.'
+  if (!emailPattern.test(contact.email)) return 'Ingresá un correo electrónico válido.'
+  if (!contact.message) return 'Escribí tu consulta.'
   return ''
 }
 

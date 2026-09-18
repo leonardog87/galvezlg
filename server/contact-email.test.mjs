@@ -12,6 +12,11 @@ test('normaliza y valida una consulta de contacto', () => {
 })
 
 test('rechaza datos inválidos y el campo trampa anti-spam', () => {
-  assert.match(validateContact(normalizeContact({ name: 'Ana' })), /Completá/)
+  assert.equal(validateContact(normalizeContact({ name: 'Ana' })), 'Ingresá tu teléfono.')
   assert.equal(validateContact(normalizeContact({ website: 'https://spam.example' })), 'spam')
+})
+
+test('acepta consultas breves si todos los campos requeridos son válidos', () => {
+  const contact = normalizeContact({ name: 'Ana', phone: '123', email: 'ana@mail.com', message: 'Precio?' })
+  assert.equal(validateContact(contact), '')
 })
