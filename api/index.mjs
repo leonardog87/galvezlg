@@ -2,12 +2,17 @@ export const maxDuration = 30
 
 export default async function handler(request, response) {
   try {
-    const { handleRequest } = await import('../server/index.mjs')
     const url = new URL(request.url || '/api', `http://${request.headers.host || 'localhost'}`)
     const path = url.searchParams.get('path') || ''
     url.searchParams.delete('path')
     const query = url.searchParams.toString()
     request.url = `/api/${path}${query ? `?${query}` : ''}`
+    if (request.url === '/api/contact') {
+      const { handleContactRequest } = await import('../server/contact-handler.mjs')
+      await handleContactRequest(request, response)
+      return
+    }
+    const { handleRequest } = await import('../server/index.mjs')
     await handleRequest(request, response)
   } catch (error) {
     console.error('Error no controlado en la API:', error)

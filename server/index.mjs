@@ -2,7 +2,7 @@ import { createServer } from 'node:http'
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto'
 import { activateProduct, applyOrderPayment, createAdminUser, createOrder, createProduct, deactivateProduct, deleteAdminUser, deleteProduct, findAdminUser, getOrderForPayment, getProduct, getPublicOrder, listAdminProducts, listAdminUsers, listProducts, prepareOrderItems, searchProductSuggestions, searchProducts, setAdminUserActive, setOrderPreference } from './database.mjs'
 import { validatePaymentForOrder, validateWebhookSignature } from './payments.mjs'
-import { normalizeContact, sendContactEmail, validateContact } from './contact-email.mjs'
+import { handleContactRequest } from './contact-handler.mjs'
 
 const port = Number(process.env.PORT || 3001)
 const maxBodySize = 30 * 1024 * 1024
@@ -143,28 +143,7 @@ export const handleRequest = async (request, response) => {
   }
 
   if (requestUrl.pathname === '/api/contact' && request.method === 'POST') {
-    try {
-      const contact = normalizeContact(await readJsonBody(request))
-      const validationError = validateContact(contact)
-      if (validationError === 'spam') {
-        sendJson(response, 200, { sent: true })
-        return
-      }
-      if (validationError) {
-        sendJson(response, 400, { error: validationError })
-        return
-      }
-      await sendContactEmail(contact)
-      sendJson(response, 201, { sent: true })
-    } catch (error) {
-      const notConfigured = error instanceof Error && error.message.includes('no está configurado')
-      console.error('No se pudo enviar la consulta de contacto:', error)
-      sendJson(response, notConfigured ? 503 : 502, {
-        error: notConfigured
-          ? 'El canal de contacto todavía no está configurado.'
-          : 'No pudimos enviar tu consulta. Intentá nuevamente en unos minutos.',
-      })
-    }
+    await handleContactRequest(request, response)
     return
   }
 
