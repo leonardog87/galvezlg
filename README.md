@@ -41,6 +41,26 @@ si esa variable no está definida, conserva automáticamente la base SQLite.
 El archivo `vercel.json` también configura el frontend para que las URLs de
 retorno `/pago/exitoso`, `/pago/pendiente` y `/pago/error` carguen correctamente.
 
+## Consultas de contacto por correo
+
+El formulario envía las consultas desde el backend mediante la API HTTP de
+Resend. El destinatario configurado es `mailTest@mail.com`. Para habilitar el
+envío en Vercel:
+
+1. Creá una cuenta en Resend, verificá el dominio desde el cual enviarás los
+   mensajes y generá una API key con permiso de envío.
+2. Agregá estas variables de entorno al proyecto:
+
+```text
+RESEND_API_KEY=re_...
+CONTACT_FROM_EMAIL=Gálvez Motos <contacto@tudominio.com>
+CONTACT_TO_EMAIL=mailTest@mail.com
+```
+
+3. Volvé a desplegar el proyecto. `CONTACT_FROM_EMAIL` debe usar el dominio
+   verificado en Resend. La API key es privada y nunca debe usar el prefijo
+   `VITE_` ni incluirse en el repositorio.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

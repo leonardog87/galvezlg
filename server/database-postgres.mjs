@@ -31,6 +31,10 @@ const ready = sql.transaction([
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
+  sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS public_token TEXT`,
+  sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS mp_collector_id TEXT`,
+  sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS stock_deducted BOOLEAN NOT NULL DEFAULT FALSE`,
+  sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP`,
   sql`CREATE TABLE IF NOT EXISTS order_items (
     id BIGSERIAL PRIMARY KEY, order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     product_id BIGINT NOT NULL REFERENCES products(id), title TEXT NOT NULL,
@@ -38,6 +42,8 @@ const ready = sql.transaction([
   )`,
   sql`CREATE INDEX IF NOT EXISTS idx_products_category ON products(category)`,
   sql`CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id)`,
+  sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_public_token ON orders(public_token)
+    WHERE public_token IS NOT NULL`,
   sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_mp_payment_id ON orders(mp_payment_id)
     WHERE mp_payment_id IS NOT NULL`,
 ])

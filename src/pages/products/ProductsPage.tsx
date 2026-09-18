@@ -53,7 +53,7 @@ export function ProductsPage({ category }: ProductsPageProps) {
             <span className="catalog-hero__eyebrow">{category ? `PRODUCTOS · ${category.name}` : search ? 'RESULTADOS DE BÚSQUEDA' : 'TODOS LOS PRODUCTOS'}</span>
             <h1>{category ? category.name : search ? <>Resultados para<br /><em>“{search}”.</em></> : <>Lo que necesitas<br /><em>para tu moto.</em></>}</h1>
           </div>
-          <p>{category ? `Explorá los productos disponibles en ${category.name.toLocaleLowerCase('es-AR')}.` : 'Rendimiento, agarre y durabilidad para llevar tu moto al límite. Elegí el producto ideal y la cantidad que necesitás.'}</p>
+          <p>{category ? `Explorá los productos disponibles en ${category.name.toLocaleLowerCase('es-AR')}.` : 'Encontrá todo lo que necesitás para equipar y cuidar tu moto. Elegí el producto ideal para vos.'}</p>
         </header>
 
         <section className="product-catalog" aria-label={category ? `Catálogo de ${category.name}` : 'Catálogo de productos'}>

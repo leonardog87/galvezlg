@@ -8,14 +8,17 @@ const content = {
   success: { eyebrow: 'PAGO APROBADO', title: '¡Gracias por tu compra!', text: 'Recibimos tu pago correctamente. Nos comunicaremos con vos para coordinar la entrega.' },
   pending: { eyebrow: 'PAGO PENDIENTE', title: 'Estamos esperando el pago.', text: 'Tu operación está en proceso. Te avisaremos cuando Mercado Pago confirme la acreditación.' },
   failure: { eyebrow: 'PAGO NO COMPLETADO', title: 'No pudimos procesar el pago.', text: 'No se realizó ningún cobro. Podés volver al carrito e intentarlo nuevamente.' },
+  unknown: { eyebrow: 'PAGO EN VERIFICACIÓN', title: 'No pudimos verificar la operación.', text: 'No vuelvas a pagar por el momento. El pago puede haberse realizado; revisá la actividad de Mercado Pago o comunicate con nosotros.' },
 }
 
-export function PaymentResultPage({ status: _returnStatus }: { status: keyof typeof content }) {
+type ResultStatus = keyof typeof content
+
+export function PaymentResultPage({ status: _returnStatus }: { status: Exclude<ResultStatus, 'unknown'> }) {
   const params = new URLSearchParams(window.location.search)
   const orderId = params.get('order_id')
   const orderToken = params.get('order_token')
   const hasOrderCredentials = Boolean(orderId && orderToken)
-  const [confirmedStatus, setConfirmedStatus] = useState<keyof typeof content | 'loading'>(hasOrderCredentials ? 'loading' : 'failure')
+  const [confirmedStatus, setConfirmedStatus] = useState<ResultStatus | 'loading'>(hasOrderCredentials ? 'loading' : 'failure')
   const [paymentId, setPaymentId] = useState<string | null>(null)
   const [error, setError] = useState(hasOrderCredentials ? '' : 'No pudimos identificar la orden de forma segura.')
   const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
@@ -24,17 +27,24 @@ export function PaymentResultPage({ status: _returnStatus }: { status: keyof typ
     if (!orderId || !orderToken) return
     fetch(`${apiBase}/api/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(orderToken)}`)
       .then(async (response) => {
-        const order = await response.json()
+        const responseText = await response.text()
+        let order: { error?: string; status?: string; paymentId?: string | null }
+        try {
+          order = JSON.parse(responseText)
+        } catch {
+          throw new Error('El servidor no devolvió una respuesta válida al verificar la orden.')
+        }
         if (!response.ok) throw new Error(order.error || 'No pudimos consultar la orden.')
-        const nextStatus = order.status === 'approved'
+        const paymentStatus = order.status || ''
+        const nextStatus: ResultStatus = paymentStatus === 'approved'
           ? 'success'
-          : ['pending', 'in_process', 'in_mediation'].includes(order.status) ? 'pending' : 'failure'
+          : ['pending', 'in_process', 'in_mediation'].includes(paymentStatus) ? 'pending' : 'failure'
         setConfirmedStatus(nextStatus)
         setPaymentId(order.paymentId || null)
         if (nextStatus === 'success') clearCart()
       })
       .catch((reason) => {
-        setConfirmedStatus('failure')
+        setConfirmedStatus('unknown')
         setError(reason instanceof Error ? reason.message : 'No pudimos consultar la orden.')
       })
   }, [apiBase, orderId, orderToken])

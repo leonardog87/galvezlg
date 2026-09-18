@@ -129,7 +129,21 @@
   transform: translateY(-2px);
 }
 
-.contact-form__success {
+.contact-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+  transform: none;
+}
+
+.contact-form__website {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-form__message {
   margin: 0;
   padding: 12px 14px;
   border: 1px solid rgba(76, 175, 80, 0.35);
@@ -137,6 +151,12 @@
   color: #9ad59c;
   background: rgba(76, 175, 80, 0.08);
   font-size: 0.86rem;
+}
+
+.contact-form__message--error {
+  border-color: rgba(244, 81, 22, 0.45);
+  color: #ff9a78;
+  background: rgba(244, 81, 22, 0.08);
 }
 
 @media (max-width: 820px) {

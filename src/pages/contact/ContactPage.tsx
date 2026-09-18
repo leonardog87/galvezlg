@@ -4,12 +4,32 @@ import { Header } from '../../components/header/Header'
 import './ContactPage.css'
 
 export function ContactPage() {
-  const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [message, setMessage] = useState('')
+  const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setSent(true)
-    event.currentTarget.reset()
+    const form = event.currentTarget
+    setStatus('sending')
+    setMessage('')
+    try {
+      const fields = Object.fromEntries(new FormData(form).entries())
+      const response = await fetch(`${apiBase}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields),
+      })
+      const responseText = await response.text()
+      const result = responseText ? JSON.parse(responseText) : {}
+      if (!response.ok) throw new Error(result.error || 'No pudimos enviar tu consulta.')
+      setStatus('sent')
+      setMessage('¡Consulta enviada! Te responderemos a la brevedad.')
+      form.reset()
+    } catch (error) {
+      setStatus('error')
+      setMessage(error instanceof Error ? error.message : 'No pudimos enviar tu consulta.')
+    }
   }
 
   return (
@@ -63,13 +83,18 @@ export function ContactPage() {
               <textarea name="message" rows={6} placeholder="¿En qué podemos ayudarte?" required />
             </label>
 
-            {sent && (
-              <p className="contact-form__success" role="status">
-                Formulario completado. La integración del canal de envío está pendiente.
+            <label className="contact-form__website" aria-hidden="true">
+              <span>SITIO WEB</span>
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+            </label>
+
+            {message && (
+              <p className={`contact-form__message contact-form__message--${status}`} role={status === 'error' ? 'alert' : 'status'}>
+                {message}
               </p>
             )}
 
-            <button type="submit">ENVIAR CONSULTA</button>
+            <button type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'ENVIANDO…' : 'ENVIAR CONSULTA'}</button>
           </form>
         </section>
       </main>
