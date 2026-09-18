@@ -13,7 +13,7 @@ const content = {
 
 type ResultStatus = keyof typeof content
 
-export function PaymentResultPage({ status: _returnStatus }: { status: Exclude<ResultStatus, 'unknown'> }) {
+export function PaymentResultPage({ status: returnStatus }: { status: Exclude<ResultStatus, 'unknown'> }) {
   const params = new URLSearchParams(window.location.search)
   const orderId = params.get('order_id')
   const orderToken = params.get('order_token')
@@ -41,13 +41,13 @@ export function PaymentResultPage({ status: _returnStatus }: { status: Exclude<R
           : ['pending', 'in_process', 'in_mediation'].includes(paymentStatus) ? 'pending' : 'failure'
         setConfirmedStatus(nextStatus)
         setPaymentId(order.paymentId || null)
-        if (nextStatus === 'success') clearCart()
+        if (nextStatus === 'success' || returnStatus === 'success') clearCart()
       })
       .catch((reason) => {
         setConfirmedStatus('unknown')
         setError(reason instanceof Error ? reason.message : 'No pudimos consultar la orden.')
       })
-  }, [apiBase, orderId, orderToken])
+  }, [apiBase, orderId, orderToken, returnStatus])
 
   if (confirmedStatus === 'loading') return <div className="checkout-page"><Header /><main className="payment-result payment-result--pending"><span>VERIFICANDO PAGO</span><h1>Estamos confirmando tu operación.</h1><p>Esperá unos segundos mientras consultamos el estado seguro de la orden.</p></main><Footer /></div>
   const result = content[confirmedStatus]
