@@ -112,16 +112,22 @@ export function Navbar() {
         </form>
       </div>
 
-      <a className="navbar__cart" href="/carrito" aria-label="Abrir carrito de compras">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 3h2l2.2 10.1a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.3 7H6" />
-          <circle cx="9.5" cy="19" r="1.25" />
-          <circle cx="17.5" cy="19" r="1.25" />
-        </svg>
-        <span className="navbar__cart-count" aria-label={`${itemsInCart} productos`}>
-          {itemsInCart}
-        </span>
-      </a>
+      <div className="navbar__actions">
+        <a className="navbar__phone" href="https://wa.me/541124553688?text=Hola%2C%20quisiera%20hacer%20una%20consulta." target="_blank" rel="noopener noreferrer" aria-label="Enviar un mensaje por WhatsApp al 11 2455 3688">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3.5 4.8 5.1c-.8.5-1.1 1.5-.7 2.4 2.5 6 7.2 10.7 13.2 13.2.9.4 1.9.1 2.4-.7l1.6-2.4-4.6-3-1.5 2.1a15.6 15.6 0 0 1-7.6-7.6l2.1-1.5-2.5-4.1Z" /></svg>
+          <span><small>CONTACTO</small>11-2455-3688</span>
+        </a>
+        <a className="navbar__cart" href="/carrito" aria-label="Abrir carrito de compras">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 3h2l2.2 10.1a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.3 7H6" />
+            <circle cx="9.5" cy="19" r="1.25" />
+            <circle cx="17.5" cy="19" r="1.25" />
+          </svg>
+          <span className="navbar__cart-count" aria-label={`${itemsInCart} productos`}>
+            {itemsInCart}
+          </span>
+        </a>
+      </div>
     </nav>
   )
 }

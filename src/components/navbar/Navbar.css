@@ -170,6 +170,37 @@
     background-color 160ms ease, transform 160ms ease;
 }
 
+.navbar__actions {
+  display: flex;
+  justify-self: end;
+  align-items: center;
+  gap: 14px;
+}
+
+.navbar__phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.navbar__phone svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: #f45116;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.navbar__phone span { display: grid; gap: 2px; }
+.navbar__phone small { color: #777; font-size: .58rem; letter-spacing: .12em; }
+.navbar__phone:hover { color: #f45116; }
+
 .navbar__cart svg {
   width: 23px;
   height: 23px;
@@ -349,4 +380,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px 20px;
   }
+}
+
+@media (max-width: 480px) {
+  .navbar { width: 100%; padding: 16px; }
+  .navbar__actions { gap: 10px; }
+  .navbar__phone { gap: 6px; font-size: .72rem; }
+  .navbar__phone svg { width: 18px; height: 18px; }
+  .navbar__phone small { display: none; }
 }

@@ -108,6 +108,92 @@
   display: block;
 }
 
+.payment-methods {
+  width: min(1240px, calc(100% - 48px));
+  margin: 20px auto 90px;
+  padding: clamp(30px, 5vw, 64px);
+  border: 1px solid #292929;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #111, #090909 65%);
+}
+
+.payment-methods__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 36px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #292929;
+}
+
+.payment-methods__heading span {
+  color: #f45116;
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .16em;
+}
+
+.payment-methods__heading h2 {
+  margin: 12px 0 0;
+  font-size: clamp(2.3rem, 5vw, 4.8rem);
+  line-height: .95;
+  letter-spacing: -.055em;
+  text-transform: uppercase;
+}
+
+.payment-methods__heading p {
+  max-width: 360px;
+  margin: 0;
+  color: #999;
+  line-height: 1.65;
+}
+
+.payment-methods__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 32px 0 24px;
+  overflow: hidden;
+  border: 1px solid #292929;
+  border-radius: 16px;
+  background: #292929;
+}
+
+.payment-method {
+  min-height: 175px;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 26px;
+  background: #0b0b0b;
+}
+
+.payment-method__icon {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(244, 81, 22, .45);
+  border-radius: 12px;
+  color: #f45116;
+  background: rgba(244, 81, 22, .08);
+}
+
+.payment-method__icon svg {
+  width: 29px;
+  height: 29px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.payment-method h3 { margin: 3px 0 10px; font-size: 1rem; text-transform: uppercase; }
+.payment-method p { margin: 0; color: #888; font-size: .82rem; line-height: 1.6; }
+.payment-methods > small { color: #666; line-height: 1.5; }
+
 @keyframes carousel-image-in {
   from {
     opacity: 0;
@@ -145,4 +231,13 @@
     gap: 24px;
     padding: 40px 0;
   }
+
+  .payment-methods { width: calc(100% - 28px); margin-bottom: 60px; padding: 28px 20px; }
+  .payment-methods__heading { align-items: flex-start; flex-direction: column; gap: 18px; }
+  .payment-methods__grid { grid-template-columns: 1fr; }
+  .payment-method { min-height: 0; }
+}
+
+@media (min-width: 681px) and (max-width: 1000px) {
+  .payment-methods__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

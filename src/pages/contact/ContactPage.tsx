@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Footer } from '../../components/footer/Footer'
 import { Header } from '../../components/header/Header'
+import { Seo } from '../../components/seo/Seo'
 import './ContactPage.css'
 
 export function ContactPage() {
@@ -34,6 +35,7 @@ export function ContactPage() {
 
   return (
     <div className="contact-page">
+      <Seo title="Contacto en Argentina | Gálvez Moto Parts" description="Contactanos desde Argentina para consultar por repuestos, cubiertas, aceites, filtros y accesorios para tu moto." canonicalPath="/contacto" />
       <Header />
 
       <main className="contact-page__main">

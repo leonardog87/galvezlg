@@ -9,18 +9,21 @@ import { CheckoutPage } from './pages/checkout/CheckoutPage'
 import { PaymentResultPage } from './pages/checkout/PaymentResultPage'
 import { ProductCategoryPage } from './pages/products/ProductCategoryPage'
 import { findProductCategory } from './pages/products/productCategories'
+import { Seo } from './components/seo/Seo'
+
+const privateSeo = <Seo title="Gálvez Moto Parts" description="Gestión y proceso de compra de Gálvez Moto Parts." noindex />
 
 function App() {
   const productId = window.location.pathname.match(/^\/productos\/detalle\/(\d+)\/?$/)?.[1]
   const category = findProductCategory(window.location.pathname)
 
-  if (window.location.pathname === '/login') return <LoginPage />
-  if (window.location.pathname === '/carrito') return <CartPage />
-  if (window.location.pathname === '/checkout') return <CheckoutPage />
-  if (window.location.pathname === '/pago/exitoso') return <PaymentResultPage status="success" />
-  if (window.location.pathname === '/pago/pendiente') return <PaymentResultPage status="pending" />
-  if (window.location.pathname === '/pago/error') return <PaymentResultPage status="failure" />
-  if (window.location.pathname === '/administrar-productos') return <AdminProductsPage />
+  if (window.location.pathname === '/login') return <>{privateSeo}<LoginPage /></>
+  if (window.location.pathname === '/carrito') return <>{privateSeo}<CartPage /></>
+  if (window.location.pathname === '/checkout') return <>{privateSeo}<CheckoutPage /></>
+  if (window.location.pathname === '/pago/exitoso') return <>{privateSeo}<PaymentResultPage status="success" /></>
+  if (window.location.pathname === '/pago/pendiente') return <>{privateSeo}<PaymentResultPage status="pending" /></>
+  if (window.location.pathname === '/pago/error') return <>{privateSeo}<PaymentResultPage status="failure" /></>
+  if (window.location.pathname === '/administrar-productos') return <>{privateSeo}<AdminProductsPage /></>
   if (productId) return <ProductDetailPage productId={Number(productId)} />
   if (category) return <ProductCategoryPage category={category} />
   if (window.location.pathname === '/productos') return <ProductsPage />

@@ -3,6 +3,7 @@ import cubierta from '../../assets/cubierta.webp'
 import { addToCart } from '../../cart'
 import { Footer } from '../../components/footer/Footer'
 import { Header } from '../../components/header/Header'
+import { Seo } from '../../components/seo/Seo'
 import { productCategories } from './productCategories'
 import './ProductDetailPage.css'
 
@@ -44,9 +45,34 @@ export function ProductDetailPage({ productId }: { productId: number }) {
 
   const images = product.images.length ? product.images : [cubierta]
   const category = productCategories.find((item) => item.slug === product.category)
+  const productName = product.title || `Producto #${product.id}`
+  const seoImage = images[0]?.startsWith('data:') ? undefined : images[0]
 
   return (
     <div className="product-detail-page">
+      <Seo
+        title={`${productName} en Argentina | Gálvez Moto Parts`}
+        description={`${product.description.slice(0, 145)}${product.description.length > 145 ? '…' : ''}`}
+        canonicalPath={`/productos/detalle/${product.id}`}
+        type="product"
+        image={seoImage}
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: productName,
+          description: product.description,
+          ...(seoImage ? { image: new URL(seoImage, window.location.origin).toString() } : {}),
+          category: category?.name || product.category,
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'ARS',
+            price: product.price,
+            availability: product.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            eligibleRegion: { '@type': 'Country', name: 'Argentina' },
+            url: window.location.href,
+          },
+        }}
+      />
       <Header />
       <main className="product-detail">
         <nav className="product-detail__breadcrumb" aria-label="Migas de pan">

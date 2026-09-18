@@ -3,6 +3,7 @@ import cubierta from '../../assets/cubierta.webp'
 import { addToCart } from '../../cart'
 import { Footer } from '../../components/footer/Footer'
 import { Header } from '../../components/header/Header'
+import { Seo } from '../../components/seo/Seo'
 import type { ProductCategory } from './productCategories'
 import './ProductsPage.css'
 
@@ -46,6 +47,14 @@ export function ProductsPage({ category }: ProductsPageProps) {
 
   return (
     <div className="products-page">
+      <Seo
+        title={category ? `${category.name} para motos en Argentina | Gálvez` : search ? `Buscar ${search} | Gálvez Moto Parts` : 'Repuestos e insumos para motos en Argentina | Gálvez'}
+        description={category
+          ? `Encontrá ${category.name.toLocaleLowerCase('es-AR')} para motos en Argentina. Comprá online y pagá de forma segura con Mercado Pago.`
+          : 'Catálogo online en Argentina de repuestos e insumos para motos: cubiertas, aceites, filtros, baterías, frenos, transmisiones, bujías y accesorios.'}
+        canonicalPath={category ? `/productos/${category.slug}` : '/productos'}
+        noindex={Boolean(search)}
+      />
       <Header />
       <main className="products-page__main">
         <header className="catalog-hero">

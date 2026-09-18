@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /administrar-productos
+Disallow: /carrito
+Disallow: /checkout
+Disallow: /pago/
+
+Sitemap: https://galvezlg.vercel.app/sitemap.xml
