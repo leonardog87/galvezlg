@@ -41,6 +41,11 @@ si esa variable no está definida, conserva automáticamente la base SQLite.
 El archivo `vercel.json` también configura el frontend para que las URLs de
 retorno `/pago/exitoso`, `/pago/pendiente` y `/pago/error` carguen correctamente.
 
+Vercel ejecuta `npm run vercel-build` durante el despliegue y publica
+`api/index.mjs` como función serverless. No se debe ejecutar `npm run api` como
+servidor permanente en producción: cada solicitud a `/api/*` inicia la función
+automáticamente. `npm run api` queda reservado para desarrollo local.
+
 ## Consultas de contacto por correo
 
 El formulario envía las consultas desde el backend mediante la API HTTP de
