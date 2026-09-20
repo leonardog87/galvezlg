@@ -50,7 +50,7 @@ const ready = sql.transaction([
 
 const query = async (text, params = []) => {
   await ready
-  return sql(text, params)
+  return sql.query(text, params)
 }
 
 const serializeProducts = async (products) => {
