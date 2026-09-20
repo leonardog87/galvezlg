@@ -231,8 +231,11 @@ export const handleRequest = async (request, response) => {
     try {
       const body = await readJsonBody(request)
       const username = normalizeUsername(body.username)
-      const storedUser = await findAdminUser(username)
       const validEnvironmentAdmin = safeMatch(username, adminUser) && safeMatch(body.password, adminPassword)
+      // El administrador principal vive en las variables de entorno. No hace falta
+      // consultar la base para validarlo; además, así un problema de conexión con
+      // Postgres no se presenta erróneamente como un fallo de credenciales.
+      const storedUser = validEnvironmentAdmin ? null : await findAdminUser(username)
       const validStoredAdmin = storedUser && storedUser.isActive && matchesStoredPassword(body.password, storedUser)
       if (!validEnvironmentAdmin && !validStoredAdmin) {
         sendJson(response, 401, { error: 'Usuario o contraseña incorrectos' })
@@ -242,8 +245,9 @@ export const handleRequest = async (request, response) => {
       const isPrimary = Boolean(validEnvironmentAdmin)
       sessions.set(token, { expiresAt: Date.now() + sessionDuration, isPrimary, username })
       sendJson(response, 200, { token, isPrimary })
-    } catch {
-      sendJson(response, 400, { error: 'No se pudo iniciar sesión' })
+    } catch (error) {
+      console.error('No se pudo iniciar sesión:', error)
+      sendJson(response, 503, { error: 'No se pudo conectar con la base de datos. Revisá la configuración de Neon.' })
     }
     return
   }
